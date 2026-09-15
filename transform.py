@@ -67,10 +67,11 @@ def standerize():
         cities['lng']=pd.to_numeric(df['lng'])
 
 
+
     
 def join_cities():
 
-    df1=pd.merge(cities[['city', 'lat', 'lng']], df, on=['lat', 'lng'], how='left')
+    df1=pd.merge(cities[['city', 'lat', 'lng']],df, on=['lat', 'lng'], how='left')
     df1.to_csv("silver/silver_data.csv",index=False)
     print(df1.dtypes)
 
@@ -87,9 +88,66 @@ def categories():
         "Très chaude"
         ]
     )
-    df1=['precipetation_category']
+    df1['precipitation_category']=pd.cut(
+        df1['precipitation_sum'],
+        bins=[-0.01,0,5,20,50,float('inf')],
+        labels=[               
+               "Aucune",
+               "Faible",
+               "Modéréé",
+               "Forte",
+               "Trés Forte"
+        ]
+    )
+
+    df1['wind_category']=pd.cut(
+        df1['wind_speed_10m_max'],
+        bins=[-float("inf"), 20, 40, 60, float("inf")],
+        labels=[
+            "Faible",
+            "Modéré",
+            "Fort",
+            "Très fort"
+        ]
+    )
+
+
     df1.to_csv('gold/gold_data.csv',index=False)
 
+def risk():
+
+    df1=pd.read_csv('gold/gold_data.csv')
+
+    precipitation_score = {
+        "Aucune": 0,
+        "Faible": 1,
+        "Modéré": 2,
+        "Fort": 3,
+        "Très fort": 4
+    }
+
+    wind_score = {
+        "Faible": 0,
+        "Modéré": 1,
+        "Fort": 2,
+        "Très fort": 3
+    }
+
+    temp_score={
+        "Froide":0,
+        "Fraîche":1,
+        "Normale":2,
+        "Chaude":2,
+        "Très chaude":3
+    }
+
+    
+    df1['risk_score']= df1['precipitation_category'].map(precipitation_score)*10+df1['wind_category'].map(wind_score)*10+df1['temperature_category'].map(temp_score)*10
+    df1['risk_score'].fillna(df1['risk_score'].mean())
+    df1.to_csv('gold/gold_data.csv',index=False)
+         
+           
+           
     
                
 
@@ -98,3 +156,4 @@ incoherance()
 standerize()
 join_cities()
 categories()
+risk()
