@@ -58,13 +58,10 @@ def standerize():
 
         df["wind_speed_10m_max"]=pd.to_numeric(df['wind_speed_10m_max'])
 
-        df['lat']=pd.to_numeric(df['lat'])
+        df['lat']=pd.to_numeric(cities['lat'])
 
-        df['lng']=pd.to_numeric(df['lng'])
+        df['lng']=pd.to_numeric(cities['lng'])
 
-        cities['lat']=pd.to_numeric(df['lat'])
-
-        cities['lng']=pd.to_numeric(df['lng'])
 
 
 
